@@ -1,55 +1,55 @@
 <?php
-// detalle.php
-require_once "conexion.php";
-include "header.php";
+//detalle.php
+require_once "php/conexion.php";
 
-$id = $_GET['id'];
+$id = intval($_GET['id']);
 
-$sql = "SELECT * FROM productos WHERE id = $id LIMIT 1";
-$res = $conn->query($sql);
-$p = $res->fetch_assoc();
+$p = $conn->query("SELECT * FROM productos WHERE id=$id")->fetch_assoc();
+$gal = $conn->query("SELECT * FROM fotos_producto WHERE producto_id=$id");
 ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title><?= $p['nombre'] ?></title>
 
 <style>
-    .contenedor-detalle {
-        max-width: 900px;
-        margin: auto;
-        display: flex;
-        gap: 25px;
-        padding: 20px;
-        flex-wrap: wrap;
-    }
-
-    .contenedor-detalle img {
-        width: 350px;
-        border-radius: 15px;
-    }
-
-    .info {
-        flex: 1;
-    }
-
-    .precio {
-        font-size: 23px;
-        color: #b000b5;
-        font-weight: bold;
-    }
+.detalle{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+.principal{
+    width:350px;
+    border-radius:15px;
+}
+.galeria img{
+    width:120px;
+    margin:6px;
+    border-radius:10px;
+}
 </style>
+</head>
+<body>
 
-<div class="contenedor-detalle">
+<div class="detalle">
 
-<img src="../images/<?= $p['imagen'] ?>">
+<h2><?= $p['nombre'] ?></h2>
 
+<img class="principal" src="images/<?= $p['imagen'] ?>">
 
-    <div class="info">
-        <h2><?= $p['nombre'] ?></h2>
-        <p><?= $p['descripcion'] ?></p>
-        <p class="precio">$<?= $p['precio'] ?></p>
+<div class="galeria">
+<?php while($f = $gal->fetch_assoc()): ?>
+    <img src="images/<?= $f['archivo'] ?>">
+<?php endwhile; ?>
+</div>
 
-        <br><br>
-        <a href="productos.php">⬅ Volver a productos</a>
-    </div>
+<p><?= $p['descripcion'] ?></p>
+<p><b>Precio:</b> $<?= $p['precio'] ?></p>
+
+<a href="index.php">⬅ Volver</a>
 
 </div>
 
-<?php include "footer.php"; ?>
+</body>
+</html>

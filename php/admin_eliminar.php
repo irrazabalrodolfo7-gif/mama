@@ -1,5 +1,4 @@
 <?php
-// admin_eliminar.php
 require_once "conexion.php";
 session_start();
 
@@ -8,24 +7,24 @@ if (!isset($_SESSION["admin"])) {
     exit;
 }
 
-$id = $_GET['id'];
+$id = intval($_GET['id']);
 
-// Obtener nombre de la imagen para borrarla
-$sql = "SELECT imagen FROM productos WHERE id = $id";
-$res = $conn->query($sql);
-$data = $res->fetch_assoc();
-$img = $data['imagen'];
-
-// Borrar el archivo de imagen
-$path = "../images/" . $img;
-if (file_exists($path)) {
-    unlink($path);
+// imagen principal
+$p = $conn->query("SELECT imagen FROM productos WHERE id=$id")->fetch_assoc();
+if ($p && $p['imagen'] && file_exists("../images/".$p['imagen'])) {
+    unlink("../images/".$p['imagen']);
 }
 
-// Borrar de la base de datos
-$conn->query("DELETE FROM productos WHERE id = $id");
+// imágenes secundarias
+$res = $conn->query("SELECT archivo FROM fotos_producto WHERE producto_id=$id");
+while ($f = $res->fetch_assoc()) {
+    if (file_exists("../images/".$f['archivo'])) {
+        unlink("../images/".$f['archivo']);
+    }
+}
 
-// Volver al panel
-header("Location: admin_panel.php");
-exit;
-?>
+// borrar registros
+$conn->query("DELETE FROM fotos_producto WHERE producto_id=$id");
+$conn->query("DELETE FROM productos WHERE id=$id");
+
+header("Location: admin_panel.php")_

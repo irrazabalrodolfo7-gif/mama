@@ -1,16 +1,25 @@
 <?php
-//eliminar_img.php
-require "conexion.php";
+//eliminar.php
+require_once "conexion.php";
 session_start();
 
-$id = intval($_GET['id']); // id imagen secundaria
-$p = intval($_GET['p']);   // id producto
+if (!isset($_SESSION["admin"])) {
+    header("Location: login.php");
+    exit;
+}
 
-$img = $conn->query("SELECT imagen FROM productos_imagenes WHERE id=$id")->fetch_assoc()['imagen'];
+$id = intval($_GET['id']); // id imagen
+$p  = intval($_GET['p']);  // id producto
 
-if(file_exists("../images/".$img)) unlink("../images/".$img);
+$img = $conn->query("
+    SELECT archivo FROM fotos_producto WHERE id=$id
+")->fetch_assoc();
 
-$conn->query("DELETE FROM productos_imagenes WHERE id=$id");
+if ($img && file_exists("../images/".$img['archivo'])) {
+    unlink("../images/".$img['archivo']);
+}
+
+$conn->query("DELETE FROM fotos_producto WHERE id=$id");
 
 header("Location: admin_editar.php?id=$p");
 exit;
